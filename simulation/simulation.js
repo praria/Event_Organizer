@@ -1,0 +1,1 @@
+// simulates event generation nd send events to the coordinator service

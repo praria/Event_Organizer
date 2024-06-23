@@ -105,7 +105,6 @@ The goal is to deal with all the events without increasing the overall stress le
           description: guest has stomac ache after eating 5 pieces of cake,
    }
 
-
 # Stack and Technologies Used
 *****************************
 ● Kafka for message brokering

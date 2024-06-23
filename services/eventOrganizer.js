@@ -1,0 +1,1 @@
+// consumes events from kafka, stores them in DB, processes and distributes validated events to appropriate teams
