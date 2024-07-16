@@ -125,3 +125,56 @@ The goal is to deal with all the events without increasing the overall stress le
 ● ReliabilityandFaultTolerance:Thesystemshouldberesilientto failures at different levels. Students should implement strategies such as message retries, dead letter queues, and circuit breakers to ensure reliability and fault tolerance.
 ● MonitoringandLogging:Implementingrobustmonitoringand logging solutions is essential for troubleshooting and maintaining the system. Students should demonstrate their ability to collect and analyze metrics, as well as handle logging and error tracking effectively.
 ● DocumentationandPresentation:Cleardocumentationoutlining the architecture, design decisions, and implementation details should be provided. Additionally, students should be able to effectively communicate their project through a presentation.
+
+
+**********************************************************************************************
+
+
+*************************
+* To run the Application *
+*************************
+
+
+Start zookeeper server:
+*************************
+run command: bin/zkServer.sh start-foreground (any argument--- {start|start-foreground|stop|version|restart|status|print-cmd})
+server validation: echo stat | nc localhost 2181
+
+
+
+Start Kafka server:
+********************
+run commannd: bin/kafka-server-start.sh config/server.properties
+to run in background: bin/kafka-server-start.sh -daemon config/server.properties
+validation: echo dump | nc localhost 2181 | grep brokers
+
+Start Mongodb server
+*********************
+- export path to mongodb bin folder by configuring .zshrc file and then the run the command in home directory: source .zshrc
+- create data/da folder in home directory
+- command: sudo mongod --dbpath /path/to/your/db
+- sudo mongod --dbpath=/Users/prakash/data/db
+
+Ensure Kafka and MongoDB are running:
+***************************************
+ps aux | grep kafka
+ps aux | grep mongod
+
+
+Start the Coordinator Service
+******************************
+node services/coordinator.js
+
+Start the Event Organizer Service:
+*********************************
+node services/eventOrganizer.js
+
+Start the Team Service:
+************************
+node services/teams.js
+
+Run the Simulation:
+*********************
+node simulation/simulation.js
+
+
