@@ -27,11 +27,11 @@ app.post('/events', async (req, res) => {
     const event = req.body;
 
     const validEventTypes = {
-        Security: ['brawl', 'not_on_list', 'person_fell', 'injured_kid'],
-        Clean_up: ['dirty_table', 'broken_glass'],
-        Catering: ['bad_food', 'music_too_loud', 'music_too_low', 'feeling_ill'],
-        Officiant: ['missing_rings', 'missing_bride', 'missing_groom'],
-        Waiters: ['broken_glass', 'person_fell', 'injured_kid', 'feeling_ill']
+        Security: ['brawl', 'not_on_list', 'person_fell', 'injured_kid', 'accident'],
+        Clean_up: ['dirty_table', 'dirty_floor', 'broken_glass', 'broken_itens'],
+        Catering: ['bad_food', 'music_too_loud', 'music_too_low', 'feeling_ill', 'music'],
+        Officiant: ['missing_rings', 'missing_bride', 'missing_groom', 'bride', 'groom' ],
+        Waiters: ['accident','broken_glass', 'person_fell', 'injured_kid', 'feeling_ill']
     };
 
     const isValidType = Object.values(validEventTypes).some(types => types.includes(event.event_type));

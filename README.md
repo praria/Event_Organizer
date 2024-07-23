@@ -150,15 +150,15 @@ validation: echo dump | nc localhost 2181 | grep brokers
 
 Start Mongodb server
 *********************
-- export path to mongodb bin folder by configuring .zshrc file and then the run the command in home directory: source .zshrc
-- create data/da folder in home directory
-- command: sudo mongod --dbpath /path/to/your/db
-- sudo mongod --dbpath=/Users/prakash/data/db
+1. export path to mongodb bin folder by configuring .zshrc file 
+2. run the command: source .zshrc
+2. create data/da folder in home directory
+3. Make sure mongod binary file has execution permission (chmod +x /Users/prakash/mongodb-macos-x86_64-5.0.27/bin/mongod
+4. run the following command:  mongod --dbpath=/Users/prakash/data/db (path to your database)
 
-Ensure Kafka and MongoDB are running:
-***************************************
-ps aux | grep kafka
-ps aux | grep mongod
+To stop Mongodb server
+1. ps aux | grep mongod (To find PID)
+2. kill PID
 
 
 Start the Coordinator Service
