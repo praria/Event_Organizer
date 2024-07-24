@@ -47,7 +47,7 @@ app.post('/events', async (req, res) => {
     res.status(200).send('Event received');
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Coordinator running on port ${PORT}`);
 });
