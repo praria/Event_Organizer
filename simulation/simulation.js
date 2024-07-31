@@ -1,21 +1,18 @@
-// simulates event generation and send events to the coordinator service
-
 const axios = require('axios');
+const payloads = require('./testdata.js');
 require('dotenv').config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
-
-const events = require('./testdata.js');
-
-// constants for timeframes in milliseconds
+// Constants for timeframes in milliseconds
 const TIMEFRAMES = {
-    High: 5000,    
-    Medium: 10000, 
-    Low: 15000     
+    High: 5000,    // 5 seconds in the simulation
+    Medium: 10000, // 10 seconds in the simulation
+    Low: 15000     // 15 seconds in the simulation
 };
 
 let stressLevel = 0;
+let currentEvent = null; // To keep track of the current event being worked on
 
 // Routine states
 const routines = {
@@ -28,7 +25,7 @@ const routines = {
 const sendEvent = async (event) => {
     try {
         const response = await axios.post(`http://localhost:${PORT}/events`, event);
-        console.log(response.data);
+        console.log(`Event handled: ${event.description}`);
         return true; // handled successfully
     } catch (error) {
         console.error(`Error sending event: ${error}`);
@@ -38,16 +35,29 @@ const sendEvent = async (event) => {
 
 // Function to simulate event handling
 const simulateEvents = () => {
-    events.forEach((event, index) => {
-        setTimeout(async () => {
-            const eventHandled = await sendEvent(event);
-            setTimeout(() => {
-                if (!eventHandled) {
-                    stressLevel++;
-                    console.log(`Event not dealt within timeframe. Stress level increased to ${stressLevel}.`);
-                }
-            }, TIMEFRAMES[event.priority]);
-        }, index * 1000); // Adjusted for 1 second
+    payloads.forEach((events, payloadIndex) => {
+        events.forEach((event, eventIndex) => {
+            setTimeout(async () => {
+                currentEvent = event;
+                console.log(`Sending event: ${event.description}`);
+                const eventHandled = await sendEvent(event);
+                
+                setTimeout(() => {
+                    console.log(`Checking if event was handled: ${event.description}`);
+                    if (!eventHandled) {
+                        stressLevel++;
+                        console.log(`Event not dealt within timeframe: ${event.description}. Stress level increased to ${stressLevel}.`);
+                    } else {
+                        console.log(`Event successfully handled within timeframe: ${event.description}.`);
+                    }
+                }, TIMEFRAMES[event.priority]);
+
+                // Log idle state after handling the event
+                setTimeout(() => {
+                    console.log(`Worker is idle after event: ${event.description}`);
+                }, TIMEFRAMES[event.priority]);
+            }, (payloadIndex * 1000) + (eventIndex * 1000)); // timing for 1 second
+        });
     });
 };
 
@@ -56,12 +66,21 @@ const simulateWorkerRoutines = (routineType) => {
     const routine = routines[routineType];
 
     const work = () => {
-        console.log('Worker is working...');
+        if (currentEvent) {
+            console.log(`Worker is working on event: ${currentEvent.description}`);
+        } else {
+            console.log('Worker is working...');
+        }
         setTimeout(idle, routine.work);
     };
 
     const idle = () => {
-        console.log('Worker is idle...');
+        if (currentEvent) {
+            console.log(`Worker is idle after event: ${currentEvent.description}`);
+            currentEvent = null; // Reset the current event after idling
+        } else {
+            console.log('Worker is idle...');
+        }
         setTimeout(work, routine.idle);
     };
 
@@ -78,7 +97,7 @@ const stopSimulation = (duration) => {
 
 // Start the simulation
 simulateEvents();
-simulateWorkerRoutines('Standard'); // change to 'Intermittent' or 'Concentrated' as needed
+simulateWorkerRoutines('Standard'); // change to 'Standard', 'Intermittent' or 'Concentrated' as needed
 
 // stops after 6 minutes
-stopSimulation(600000);
+stopSimulation(360000); // 6 minutes in milliseconds
