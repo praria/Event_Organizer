@@ -2,7 +2,7 @@ const axios = require('axios');
 const payloads = require('./testdata.js');
 require('dotenv').config();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Constants for timeframes in milliseconds
 const TIMEFRAMES = {
@@ -11,8 +11,14 @@ const TIMEFRAMES = {
     Low: 15000     // 15 seconds in the simulation
 };
 
-let stressLevel = 0;
+const TOTAL_GUESTS = 200;
+const MAX_STRESS_LEVEL = 30;
+const MAX_INDIVIDUAL_STRESS_LEVEL = 10;
+let overallStressLevel = 0;
 let currentEvent = null; // To keep track of the current event being worked on
+
+// Initialize guests with Happy status
+const guests = Array.from({ length: TOTAL_GUESTS }, () => ({ status: 'Happy', stressLevel: 0 }));
 
 // Routine states
 const routines = {
@@ -23,13 +29,52 @@ const routines = {
 
 // Function to send an event to the coordinator
 const sendEvent = async (event) => {
-    try {
-        const response = await axios.post(`http://localhost:${PORT}/events`, event);
-        console.log(`Event handled: ${event.description}`);
-        return true; // handled successfully
-    } catch (error) {
-        console.error(`Error sending event: ${error}`);
+    // Simulate random failures
+    const success = Math.random() > 0.2; // 80% success rate
+    if (success) {
+        try {
+            const response = await axios.post(`http://localhost:${PORT}/events`, event);
+            console.log(`Event handled: ${event.description}`);
+            return true; // handled successfully
+        } catch (error) {
+            console.error(`Error sending event: ${error}`);
+            return false; // handling failed
+        }
+    } else {
+        console.log(`Event handling failed: ${event.description}`);
         return false; // handling failed
+    }
+};
+
+// Function to update guest stress levels and statuses
+const updateGuestStatuses = () => {
+    if (overallStressLevel < MAX_STRESS_LEVEL) {
+        const stressIncrement = 1; // Increment for each event not handled
+        overallStressLevel += stressIncrement;
+
+        // Distribute stress increment randomly among a subset of guests
+        const affectedGuests = Math.min(5, TOTAL_GUESTS); // Affect a small percentage of guests
+        for (let i = 0; i < affectedGuests; i++) {
+            const randomIndex = Math.floor(Math.random() * TOTAL_GUESTS);
+            const guest = guests[randomIndex];
+            guest.stressLevel += stressIncrement;
+            if (guest.stressLevel > MAX_INDIVIDUAL_STRESS_LEVEL) {
+                guest.stressLevel = MAX_INDIVIDUAL_STRESS_LEVEL;
+            }
+            if (guest.stressLevel > 5) {
+                guest.status = 'Stressed';
+            } else if (guest.stressLevel > 3) {
+                guest.status = 'Annoyed';
+            } else if (guest.stressLevel > 1) {
+                guest.status = 'Irritated';
+            } else {
+                guest.status = 'Happy';
+            }
+            console.log(`Guest ${randomIndex + 1} status: ${guest.status}, Stress Level: ${guest.stressLevel}`);
+        }
+        console.log(`Overall Stress Level: ${overallStressLevel}`);
+    } else {
+        console.log('Max stress level reached. No further stress increments.');
     }
 };
 
@@ -41,12 +86,12 @@ const simulateEvents = () => {
                 currentEvent = event;
                 console.log(`Sending event: ${event.description}`);
                 const eventHandled = await sendEvent(event);
-                
+
                 setTimeout(() => {
                     console.log(`Checking if event was handled: ${event.description}`);
                     if (!eventHandled) {
-                        stressLevel++;
-                        console.log(`Event not dealt within timeframe: ${event.description}. Stress level increased to ${stressLevel}.`);
+                        console.log(`Event not dealt within timeframe: ${event.description}.`);
+                        updateGuestStatuses();
                     } else {
                         console.log(`Event successfully handled within timeframe: ${event.description}.`);
                     }
