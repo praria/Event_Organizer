@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
 
-// Constants for timeframes in milliseconds
+// Priorities timeframes
 const TIMEFRAMES = {
     High: 5000,    // 5 seconds in the simulation
     Medium: 10000, // 10 seconds in the simulation
@@ -20,7 +20,7 @@ let currentEvent = null; // To keep track of the current event being worked on
 // Initialize guests with Happy status
 const guests = Array.from({ length: TOTAL_GUESTS }, () => ({ status: 'Happy', stressLevel: 0 }));
 
-// Routine states
+// Routines timeframes
 const routines = {
     Standard: { work: 20000, idle: 5000 },
     Intermittent: { work: 5000, idle: 5000 },
@@ -61,11 +61,11 @@ const updateGuestStatuses = () => {
             if (guest.stressLevel > MAX_INDIVIDUAL_STRESS_LEVEL) {
                 guest.stressLevel = MAX_INDIVIDUAL_STRESS_LEVEL;
             }
-            if (guest.stressLevel > 5) {
+            if (guest.stressLevel > 15) {
                 guest.status = 'Stressed';
-            } else if (guest.stressLevel > 3) {
+            } else if (guest.stressLevel > 10) {
                 guest.status = 'Annoyed';
-            } else if (guest.stressLevel > 1) {
+            } else if (guest.stressLevel > 5) {
                 guest.status = 'Irritated';
             } else {
                 guest.status = 'Happy';
@@ -78,7 +78,7 @@ const updateGuestStatuses = () => {
     }
 };
 
-// Function to simulate event handling
+// Function to simulate event handling by scheduling and sending events
 const simulateEvents = () => {
     payloads.forEach((events, payloadIndex) => {
         events.forEach((event, eventIndex) => {
@@ -101,7 +101,7 @@ const simulateEvents = () => {
                 setTimeout(() => {
                     console.log(`Worker is idle after event: ${event.description}`);
                 }, TIMEFRAMES[event.priority]);
-            }, (payloadIndex * 1000) + (eventIndex * 1000)); // timing for 1 second
+            }, (payloadIndex * 1000) + (eventIndex * 1000)); // timing each with 1 second interval
         });
     });
 };
