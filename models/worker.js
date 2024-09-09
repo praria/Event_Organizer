@@ -3,9 +3,20 @@
 const mongoose = require('mongoose');
 
 const workerSchema = new mongoose.Schema({
-    team: String,
-    status: { type: String, default: 'Idle' }
+    name: {
+        type: String,
+        required: true
+    },
+    team: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        required: true,
+        enum: ['Idle', 'Busy'],
+        default: 'Idle'
+    }
 });
 
-const Worker = mongoose.model('Worker', workerSchema);
-module.exports = Worker;
+module.exports = mongoose.model('Worker', workerSchema);
