@@ -13,7 +13,7 @@ const result = require('dotenv').config();
 if (result.error) {
     throw result.error;
 }
-console.log('Parsed .env:', result.parsed);
+console.log('Parsed .env:', result.parsed); 
 console.log('MONGO_URI:', process.env.MONGO_URI);
 
 // MongoDB connection
@@ -151,5 +151,8 @@ const start = async () => {
         },
     });
 };
+
+// Exporting teamMapping and assignTeam for use in simulation.js
+module.exports = {teamMapping, assignTeam};
 
 start().catch(console.error);

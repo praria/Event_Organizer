@@ -1,5 +1,6 @@
 const axios = require('axios');
 const payloads = require('./testdata.js');
+const { teamMapping, assignTeam } = require('../services/teams.js');
 require('dotenv').config();
 
 const PORT = process.env.PORT;
@@ -36,6 +37,8 @@ let workerAvailability = {
     Waiters: true
 };
 
+
+
 // Function to update worker availability based on their routine
 const updateWorkerAvailability = (team, routineType) => {
     const routine = routines[routineType];
@@ -52,28 +55,34 @@ const updateWorkerAvailability = (team, routineType) => {
 const handleEvent = async (event) => {
     console.log(`Event object:`, event); // Debug log to check event structure
     
-    const team = event.team; // Assign event to team
+    const team = assignTeam(event.event_type); // assign the team based on the event type
     const routineType = teamRoutines[team];
 
-    if (workerAvailability[team]) {
-        console.log(`Worker from ${team} team is handling event: ${event.description}`);
+    if (team) {
+        if (workerAvailability[team]) {
+            console.log(`Worker from ${team} team is handling event: ${event.description}`);
 
-        // Worker is busy during their work period
-        updateWorkerAvailability(team, routineType);
+            // Worker is busy during their work period
+            updateWorkerAvailability(team, routineType);
 
-        try {
-            const response = await axios.post(`http://localhost:${PORT}/events`, event);
-            console.log(`Event handled: ${event.description}`);
-            return true;
-        } catch (error) {
-            console.error(`Error sending event: ${error}`);
-            return false;
+            try {
+                const response = await axios.post(`http://localhost:${PORT}/events`, event);
+                console.log(`Event handled: ${event.description}`);
+                return true;
+            } catch (error) {
+                console.error(`Error sending event: ${error}`);
+                return false;
+            }
+        } else {
+            console.log(`Worker from ${team} team is unavailable for event: ${event.description}`);
+            return false; // Event could not be handled
         }
     } else {
-        console.log(`Worker from ${team} team is unavailable for event: ${event.description}`);
-        return false; // Event could not be handled
+        console.log(`No team found for event type: ${event.event_type}`);
+        return false;
     }
 };
+
 
 // Function to update overall stress level when events are not handled
 const updateOverallStressLevel = () => {
