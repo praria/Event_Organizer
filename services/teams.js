@@ -109,7 +109,7 @@ const handleEvent = async (event) => {
                 // Set worker back to idle
                 worker.status = 'Idle';
                 await worker.save();
-            }, 5000); // Simulated processing time
+            }, 3000); // Simulated processing time
         } else {
             console.log(`No available workers in team ${team} to handle event ${event.description}`);
             event.status = 'Pending'; // Mark event as pending if no workers are available
