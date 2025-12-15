@@ -367,6 +367,23 @@ You can create a bash file to run all the above commands automatically. Here's a
 ```bash
 #!/bin/bash
 
+# Stop existing MongoDB, Kafka, and Zookeeper processes
+echo "Stopping existing MongoDB, Kafka, and Zookeeper processes..."
+
+# Stop MongoDB
+pkill mongod
+
+# Stop Kafka
+pkill -f 'kafka-server-start.sh'
+
+# Stop Zookeeper
+pkill -f 'zkServer.sh'
+
+# Stop Node.js services
+pkill -f 'node services/coordinator.js'
+pkill -f 'node services/eventOrganizer.js'
+pkill -f 'node services/teams.js'
+
 # Change to home directory
 echo "Changing to home directory"
 cd ~
@@ -402,7 +419,7 @@ sleep 10 # Give some time for MongoDB to start
 
 # Start Coordinator service
 echo "Starting Coordinator service..."
-cd Documents/mscs/enggLab4-marryMe/marry_me_organizer
+cd marry_me_organizer
 node services/coordinator.js &
 sleep 5 # Give some time for Coordinator service to start
 
@@ -417,7 +434,7 @@ node services/teams.js &
 sleep 5 # Give some time for Teams service to start
 
 # Start Simulation in a new terminal window
-osascript -e 'tell application "Terminal" to do script "cd Documents/mscs/enggLab4-marryMe/marry_me_organizer; echo Starting Simulation...; node simulation/simulation.js"'
+osascript -e 'tell application "Terminal" to do script "cd marry_me_organizer; echo Starting Simulation...; node simulation/simulation.js"'      
 ```
 
 **To use the script:**
